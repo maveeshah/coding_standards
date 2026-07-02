@@ -27,7 +27,7 @@ class BackendInjector:
       - id: check-yaml
       - id: check-added-large-files
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.280
+    rev: v0.4.0
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
@@ -43,6 +43,13 @@ class BackendInjector:
 """
         with open(self.pre_commit_path, "w") as f:
             f.write(yaml_content)
+
+        try:
+            subprocess.run(["pre-commit", "install"], cwd=self.app_root, check=True)
+            if strict_jira:
+                subprocess.run(["pre-commit", "install", "--hook-type", "commit-msg"], cwd=self.app_root, check=True)
+        except Exception as e:
+            print(f"\\nWarning: Failed to install pre-commit hooks in {self.target_app}. Is 'pre-commit' installed on your system? {e}")
 
     def inject_pyproject_toml(self, pydantic_choice, pytest_choice, pytest_cov=70, pytest_cmd=""):
         if not os.path.exists(self.pyproject_path):
@@ -194,7 +201,7 @@ export default [
         # Setup husky and lint-staged
         # Make sure husky is installed
         install_verb = "add" if pm in ["yarn", "pnpm"] else "install"
-        subprocess.run([pm, install_verb, "husky", "lint-staged", "-D"], cwd=spa_dir)
+        subprocess.run([pm, install_verb, "husky", "lint-staged", "eslint", "prettier", "@eslint/js", "-D"], cwd=spa_dir)
         
         # Add lint-staged to package.json
         try:
