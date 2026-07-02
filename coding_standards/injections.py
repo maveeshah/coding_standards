@@ -193,7 +193,8 @@ export default [
 
         # Setup husky and lint-staged
         # Make sure husky is installed
-        subprocess.run([pm, "install", "husky", "lint-staged", "-D"], cwd=spa_dir)
+        install_verb = "add" if pm in ["yarn", "pnpm"] else "install"
+        subprocess.run([pm, install_verb, "husky", "lint-staged", "-D"], cwd=spa_dir)
         
         # Add lint-staged to package.json
         try:
